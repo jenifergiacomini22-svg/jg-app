@@ -556,22 +556,40 @@ class JGApp {
     if (script) {
       const container = document.getElementById('teleprompter-container');
       if (container) {
-        container.innerHTML = `
-          <div class="teleprompter-content">${script.conteudo}</div>
-        `;
+        // Escape HTML e quebra linhas
+        const safeContent = script.conteudo
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\n/g, '<br>');
+
+        container.innerHTML = `<div class="teleprompter-content">${safeContent}</div>`;
+        container.scrollTop = 0; // Reset scroll
       }
 
       this.teleprompterPlaying = false;
       document.getElementById('play-pause').textContent = '▶ Play';
+      console.log('Script loaded:', script.titulo);
     }
   }
 
   toggleTeleprompter() {
     const container = document.getElementById('teleprompter-container');
-    if (!container || container.innerHTML.includes('teleprompter-empty')) return;
+    if (!container) return;
+
+    const hasContent = container.querySelector('.teleprompter-content') !== null;
+    if (!hasContent) {
+      alert('Selecione um roteiro primeiro!');
+      return;
+    }
 
     this.teleprompterPlaying = !this.teleprompterPlaying;
-    document.getElementById('play-pause').textContent = this.teleprompterPlaying ? '⏸ Pause' : '▶ Play';
+    const playBtn = document.getElementById('play-pause');
+    if (playBtn) {
+      playBtn.textContent = this.teleprompterPlaying ? '⏸ Pause' : '▶ Play';
+    }
+
+    console.log('Teleprompter:', this.teleprompterPlaying ? 'playing' : 'paused');
 
     if (this.teleprompterPlaying) {
       this.autoScrollTeleprompter();
@@ -579,12 +597,25 @@ class JGApp {
   }
 
   autoScrollTeleprompter() {
-    if (!this.teleprompterPlaying) return;
+    if (!this.teleprompterPlaying) {
+      console.log('Auto-scroll stopped');
+      return;
+    }
 
     const container = document.getElementById('teleprompter-container');
     if (container) {
       const scrollSpeed = 2 * this.teleprompterSpeed;
       container.scrollBy(0, scrollSpeed);
+
+      // Verificar se chegou ao fim
+      if (container.scrollHeight - container.scrollTop <= container.clientHeight + 10) {
+        console.log('Chegou ao fim do roteiro');
+        this.teleprompterPlaying = false;
+        const playBtn = document.getElementById('play-pause');
+        if (playBtn) playBtn.textContent = '▶ Play';
+        return;
+      }
+
       setTimeout(() => this.autoScrollTeleprompter(), 50);
     }
   }
