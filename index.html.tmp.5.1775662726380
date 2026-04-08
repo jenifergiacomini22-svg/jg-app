@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f0f0f">
+  <meta name="description" content="JG App — Agenda, Ideias, Teleprompter">
+  <title>⚡ JG App</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23C4A96B' width='192' height='192' rx='45'/><text x='50%' y='50%' font-size='100' font-weight='900' fill='white' text-anchor='middle' dy='.3em' font-family='Georgia'>⚡</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23C4A96B' width='192' height='192' rx='45'/><text x='50%' y='50%' font-size='100' font-weight='900' fill='white' text-anchor='middle' dy='.3em' font-family='Georgia'>⚡</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- TOPNAV -->
+    <nav class="topnav">
+      <span class="topnav-logo">⚡ JG App</span>
+      <button class="topnav-link active" data-screen="dashboard">📊 Dashboard</button>
+      <button class="topnav-link" data-screen="agenda">📅 Agenda</button>
+      <button class="topnav-link" data-screen="ideias">💡 Ideias</button>
+      <button class="topnav-link" data-screen="teleprompter">📖 Teleprompter</button>
+    </nav>
+
+    <!-- CONTAINER DE TELAS -->
+    <main class="app-container">
+
+      <!-- ===== DASHBOARD ===== -->
+      <section id="dashboard" class="screen active">
+        <div class="screen-header">
+          <h1>📊 Dashboard</h1>
+          <p id="greeting" class="greeting"></p>
+        </div>
+
+        <!-- Cards de Frentes -->
+        <div class="frentes-grid">
+          <div class="frente-card marca-pessoal">
+            <div class="frente-icon">👤</div>
+            <h3>Marca Pessoal</h3>
+            <p class="frente-desc">Jenifer Giacomini</p>
+            <div class="frente-stats">
+              <span>0 ideias</span>
+            </div>
+          </div>
+
+          <div class="frente-card escritorio">
+            <div class="frente-icon">⚖️</div>
+            <h3>Escritório</h3>
+            <p class="frente-desc">Giacomini & Silva</p>
+            <div class="frente-stats">
+              <span>0 ideias</span>
+            </div>
+          </div>
+
+          <div class="frente-card lex-aura">
+            <div class="frente-icon">✨</div>
+            <h3>Lex Aura</h3>
+            <p class="frente-desc">Marketing para Advogados</p>
+            <div class="frente-stats">
+              <span>0 ideias</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Eventos de Hoje -->
+        <section class="dashboard-section">
+          <h2>📌 Hoje</h2>
+          <div id="today-events" class="events-list">
+            <p class="empty-state">Nenhum evento para hoje</p>
+          </div>
+        </section>
+
+        <!-- Ideias Recentes -->
+        <section class="dashboard-section">
+          <h2>🔥 Ideias Recentes</h2>
+          <div id="recent-ideas" class="ideas-preview">
+            <p class="empty-state">Nenhuma ideia ainda. <a href="#" onclick="app.goTo('ideias'); return false;">Criar a primeira →</a></p>
+          </div>
+        </section>
+      </section>
+
+      <!-- ===== AGENDA ===== -->
+      <section id="agenda" class="screen">
+        <div class="screen-header">
+          <h1>📅 Agenda</h1>
+          <p>Google Calendar integrado</p>
+        </div>
+
+        <div class="agenda-toolbar">
+          <button class="btn-view-mode active" data-mode="day">Dia</button>
+          <button class="btn-view-mode" data-mode="week">Semana</button>
+          <button class="btn-view-mode" data-mode="month">Mês</button>
+        </div>
+
+        <div class="agenda-nav">
+          <button id="prev-date">← Anterior</button>
+          <span id="current-date-display"></span>
+          <button id="next-date">Próximo →</button>
+          <button class="btn-today">Hoje</button>
+        </div>
+
+        <div id="agenda-content" class="agenda-grid">
+          <p class="empty-state">Sincronizando com Google Calendar...</p>
+        </div>
+
+        <div class="agenda-note">
+          <small>💡 Conecte sua Google Agenda em Configurações para sincronizar eventos</small>
+        </div>
+      </section>
+
+      <!-- ===== BANCO DE IDEIAS ===== -->
+      <section id="ideias" class="screen">
+        <div class="screen-header">
+          <h1>💡 Banco de Ideias</h1>
+          <button class="btn-primary" id="btn-new-idea">+ Nova Ideia</button>
+        </div>
+
+        <div class="ideias-filters">
+          <button class="filter-btn active" data-filter="all">Todas</button>
+          <button class="filter-btn" data-filter="marca-pessoal">👤 Pessoal</button>
+          <button class="filter-btn" data-filter="escritorio">⚖️ Escritório</button>
+          <button class="filter-btn" data-filter="lex-aura">✨ Lex Aura</button>
+        </div>
+
+        <div class="kanban-board">
+          <div class="kanban-column" data-status="bruto">
+            <div class="column-header">📝 Ideia Bruta</div>
+            <div class="column-cards" id="col-bruto"></div>
+          </div>
+
+          <div class="kanban-column" data-status="roteiro">
+            <div class="column-header">✍️ Em Roteiro</div>
+            <div class="column-cards" id="col-roteiro"></div>
+          </div>
+
+          <div class="kanban-column" data-status="gravar">
+            <div class="column-header">🎥 Para Gravar</div>
+            <div class="column-cards" id="col-gravar"></div>
+          </div>
+
+          <div class="kanban-column" data-status="publicado">
+            <div class="column-header">✅ Publicado</div>
+            <div class="column-cards" id="col-publicado"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== TELEPROMPTER ===== -->
+      <section id="teleprompter" class="screen">
+        <div class="screen-header">
+          <h1>📖 Teleprompter</h1>
+          <p>Leia seus roteiros com facilidade</p>
+        </div>
+
+        <div class="teleprompter-toolbar">
+          <select id="script-select" class="script-selector">
+            <option value="">Selecione um roteiro...</option>
+          </select>
+          <button id="btn-new-script" class="btn-primary">+ Novo Roteiro</button>
+        </div>
+
+        <div id="teleprompter-container" class="teleprompter-wrapper">
+          <div class="teleprompter-empty">
+            <p>📖 Selecione um roteiro ou crie um novo para começar</p>
+          </div>
+        </div>
+
+        <div class="teleprompter-controls">
+          <button id="play-pause" class="control-btn">▶ Play</button>
+          <input type="range" id="speed-slider" min="0.5" max="3" step="0.1" value="1" class="speed-slider">
+          <span id="speed-value">1x</span>
+          <button id="fullscreen-btn" class="control-btn">⛶ Fullscreen</button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODAL: Nova/Editar Ideia -->
+    <div id="modal-idea" class="modal">
+      <div class="modal-content modal-large">
+        <h2 id="modal-idea-title">Nova Ideia</h2>
+        <form id="form-idea">
+          <input type="text" id="idea-titulo" placeholder="Título da ideia" required>
+          <textarea id="idea-descricao" placeholder="Descrição ou notas..."></textarea>
+
+          <label>Tipo:</label>
+          <select id="idea-tipo" required>
+            <option value="insight">💭 Insight</option>
+            <option value="link">🔗 Link</option>
+            <option value="print">📸 Print</option>
+            <option value="roteiro">📄 Roteiro</option>
+          </select>
+
+          <label>Frente:</label>
+          <select id="idea-frente" required>
+            <option value="marca-pessoal">👤 Marca Pessoal</option>
+            <option value="escritorio">⚖️ Escritório</option>
+            <option value="lex-aura">✨ Lex Aura</option>
+          </select>
+
+          <label>Link do Post Publicado (opcional)</label>
+          <input type="url" id="idea-link" placeholder="https://instagram.com/... ou https://linkedin.com/...">
+
+          <label>Thumbnail / Print (opcional)</label>
+          <div class="image-upload-container">
+            <input type="file" id="idea-image" accept="image/*">
+            <div id="idea-image-preview" class="image-preview"></div>
+          </div>
+
+          <div class="modal-buttons">
+            <button type="submit" class="btn-primary" id="form-idea-submit">Criar</button>
+            <button type="button" class="btn-secondary" onclick="app.closeModal('modal-idea')">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: Visualizar/Editar Ideia -->
+    <div id="modal-idea-detail" class="modal">
+      <div class="modal-content modal-large">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2>Detalhes da Ideia</h2>
+          <button type="button" class="btn-small-close" onclick="app.closeModal('modal-idea-detail')">✕</button>
+        </div>
+
+        <div id="idea-detail-content"></div>
+
+        <div class="modal-buttons" style="margin-top: 20px;">
+          <button type="button" class="btn-primary" onclick="app.editCurrentIdea()">✏️ Editar</button>
+          <button type="button" class="btn-danger" onclick="app.deleteCurrentIdea()">🗑️ Deletar</button>
+          <button type="button" class="btn-secondary" onclick="app.closeModal('modal-idea-detail')">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Novo Roteiro -->
+    <div id="modal-script" class="modal">
+      <div class="modal-content">
+        <h2>Novo Roteiro</h2>
+        <form id="form-script">
+          <input type="text" id="script-titulo" placeholder="Título do roteiro" required>
+          <textarea id="script-conteudo" placeholder="Cole ou digite o roteiro aqui..." required></textarea>
+
+          <label>Frente:</label>
+          <select id="script-frente" required>
+            <option value="marca-pessoal">👤 Marca Pessoal</option>
+            <option value="escritorio">⚖️ Escritório</option>
+            <option value="lex-aura">✨ Lex Aura</option>
+          </select>
+
+          <div class="modal-buttons">
+            <button type="submit" class="btn-primary">Salvar</button>
+            <button type="button" class="btn-secondary" onclick="app.closeModal('modal-script')">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
